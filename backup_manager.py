@@ -101,14 +101,20 @@ def parse_vms(instances):
 
 # Logic for 2
 def create_backup():
+    volumes_to_snapshot = apply_retention_policy()
+    # uncommment below when right volumes are returned
+    print('stop')
+   
+    # for volume in volumes_to_snapshot:
+    #     create_snapshot(volume)
+
+def apply_retention_policy():
     potential_machines_to_backup = find_all_machines_with_backup_set_to_true()
     all_backups = melt_snapshots_and_vms()
-    to_backup = find_all_backup_per_machine(potential_machines_to_backup, all_backups)
-    print('stop')
-    # first_machine = machine_info[0]['Snapshot_date']
-    # c = before_today(first_machine)
-    # print(c)
-    # print('stop')
+    to_backup = find_last_backup_per_machine(potential_machines_to_backup, all_backups)
+
+    # will return 
+    return "nothing yet"
 
 def find_all_machines_with_backup_set_to_true():
     vms = parse_vms(fetch_instances())
@@ -119,22 +125,24 @@ def find_all_machines_with_backup_set_to_true():
             'VolumeId':parsed_vm['VolumeID']})
     return vms_of_interest
 
-def find_all_backup_per_machine(potential_machines_to_backup, all_backups):
+def find_last_backup_per_machine(potential_machines_to_backup, all_backups):
+    # First finds all backup per machine
+    # Then gets last and adds it to machine id
     potential_machines = [machine['InstanceId'] for machine in potential_machines_to_backup]
     backups_per_machine = [machine for machine in all_backups if machine['InstanceId'] in potential_machines]
-    # TODO: filter on each machine or create logic
-
+    machine_dates = []
     for machine_id in potential_machines:
         backup_dates_per_machine = []
         for backup in backups_per_machine:
             if backup['InstanceId'] == machine_id:
                 backup_dates_per_machine.append(backup['Snapshot_date'])
+        backup_dates_per_machine.sort(reverse=True)
         machine_dates_holder = {
             "InstanceId": machine_id,
-            "Backup_Dates": backup_dates_per_machine
+            "Last_Backup": backup_dates_per_machine[0]
         }
-    print(machine_dates_holder)
-
+        machine_dates.append(machine_dates_holder)
+    return machine_dates
 
 # BACKUP 2
 create_backup()
