@@ -101,20 +101,18 @@ def parse_vms(instances):
 
 # Logic for 2
 def create_backup():
-    volumes_to_snapshot = apply_retention_policy()
-    # uncommment below when right volumes are returned
-    print('stop')
-   
-    # for volume in volumes_to_snapshot:
-    #     create_snapshot(volume)
+    machines_to_snapshot = apply_retention_policy()
+    volumes_to_snapshot = [machine['VolumeId'] for machine in machines_to_snapshot]
+ 
+    for volume in volumes_to_snapshot:
+        create_snapshot(volume)
 
 def apply_retention_policy():
     potential_machines_to_backup = find_all_machines_with_backup_set_to_true()
     all_backups = melt_snapshots_and_vms()
-    to_backup = find_last_backup_per_machine(potential_machines_to_backup, all_backups)
+    to_backup = get_volumes_to_backup(potential_machines_to_backup, all_backups)
 
-    # will return 
-    return "nothing yet"
+    return to_backup
 
 def find_all_machines_with_backup_set_to_true():
     vms = parse_vms(fetch_instances())
@@ -125,9 +123,10 @@ def find_all_machines_with_backup_set_to_true():
             'VolumeId':parsed_vm['VolumeID']})
     return vms_of_interest
 
-def find_last_backup_per_machine(potential_machines_to_backup, all_backups):
+def get_volumes_to_backup(potential_machines_to_backup, all_backups):
     # First finds all backup per machine
     # Then gets last and adds it to machine id
+    # TODO: check if the machine which has backup enabled but has no backup yet is being covered
     potential_machines = [machine['InstanceId'] for machine in potential_machines_to_backup]
     backups_per_machine = [machine for machine in all_backups if machine['InstanceId'] in potential_machines]
     machine_dates = []
@@ -139,9 +138,12 @@ def find_last_backup_per_machine(potential_machines_to_backup, all_backups):
         backup_dates_per_machine.sort(reverse=True)
         machine_dates_holder = {
             "InstanceId": machine_id,
-            "Last_Backup": backup_dates_per_machine[0]
+            "Last_Backup": backup_dates_per_machine[0],
+            "VolumeId": backup['VolumeID'],
+            "Prelim_Backup_Check": before_today(backup_dates_per_machine[0])
         }
         machine_dates.append(machine_dates_holder)
+    machine_dates = [machine for machine in machine_dates if machine['Prelim_Backup_Check'] == True]
     return machine_dates
 
 # BACKUP 2
