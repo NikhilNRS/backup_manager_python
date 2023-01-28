@@ -10,6 +10,13 @@ def is_more_than_one_week(date: datetime) -> bool:
     else:
         return False
 
+def is_less_than_one_week(date: datetime) -> bool:
+    one_week_ago = datetime.utcnow().replace(tzinfo=pytz.UTC) - timedelta(days=7)
+    if date < one_week_ago:
+        return True
+    else:
+        return False
+
 
 def is_more_than_one_day(date: datetime) -> bool:
     one_day_ago = datetime.utcnow().replace(tzinfo=pytz.UTC) - timedelta(hours=24)
