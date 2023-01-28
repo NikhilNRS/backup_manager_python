@@ -175,6 +175,7 @@ def get_volumes_to_backup(potential_machines_to_backup, all_backups):
 
 
 def apply_cleaning_policy():
+    backups_younger_than_7_days()
     pass
 
 
@@ -203,6 +204,11 @@ def make_distinction():
 
 def parse_backups_older_than_7_days():
     backups = make_distinction()
+    backups = backups[0]
+    # Find all backups
+    # Save for each how many weeks they are ago
+    # create set(list) where list holds every number of weeks ago
+    print('pause')
     pass
 
 
@@ -211,6 +217,25 @@ def parse_backups_older_than_7_days():
 
 def backups_younger_than_7_days():
     backups = make_distinction()
+    _backups = backups[1]
+    new_backups = []
+    for backup in _backups:
+        backup['days'] = how_long_ago(backup['Snapshot_date']).days
+        new_backups.append(backup)
+    unique_days = set([backup['days'] for backup in new_backups])
+    d = {}
+    for day in unique_days:
+        temp_list = []
+        for backup in new_backups:
+            if backup['days'] == day:
+                temp_list.append(backup)
+                print(temp_list)
+        d['{day}'.format(day=day)] = temp_list
+
+    # Make a dict with keys set(list) where the list contains numbers of days ago
+    # Find delta in days and put values in corresponding keys for each day.
+    # sort and keep most recent
+    print('stop')
     pass
 
 
