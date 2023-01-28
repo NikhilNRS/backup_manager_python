@@ -1,6 +1,5 @@
 import boto3
 from date_utils import *
-import asyncio
 
 ec2_client = boto3.client('ec2')
 def fetch_instances():
@@ -23,19 +22,14 @@ def fetch_volumes():
     volumes = [vm['VolumeID'] for vm in vms]
     return volumes
 
-
-def fetch_snapshots_for_volume(volume_id):
+def fetch_snapshots_per_volume(volume_id):
     return ec2_client.describe_snapshots(
         Filters=[{'Name':'volume-id', 'Values': volume_id}]
     )
 def parse_snapshots():
     # ['vol-06abb4d68e75ae30e', "vol-06abb4d68e75ae30e"]
     volumes = fetch_volumes()
-    snapshots = fetch_snapshots_for_volume(volumes)['Snapshots']
-    # TODO: make it such that we get only get the last snapshot
-    # Missing info for this: we need one more snapshot to implement the above   
-
-
+    snapshots = fetch_snapshots_per_volume(volumes)['Snapshots']   
     snapshot_dates = [{
         "Snapshot_Id": snapshot['SnapshotId'],
         "Snapshot_date": snapshot['StartTime'],
@@ -73,7 +67,6 @@ def melt_snapshots_and_vms():
     return melted_snaps_vms
 
 def parse_vms(instances):
-    tags_info = []
     information_holder = []
     for vm in instances:
         blockDeviceMappings = vm['BlockDeviceMappings']
@@ -97,13 +90,8 @@ def parse_vms(instances):
         information_holder.append(_dict)
     return information_holder
 
-
-
 # Logic for 2
-def create_backup():
-    machines_to_snapshot = apply_retention_policy()
-    volumes_to_snapshot = [machine['VolumeId'] for machine in machines_to_snapshot]
- 
+def create_backup(volumes_to_snapshot):
     for volume in volumes_to_snapshot:
         create_snapshot(volume)
 
@@ -111,8 +99,9 @@ def apply_retention_policy():
     potential_machines_to_backup = find_all_machines_with_backup_set_to_true()
     all_backups = melt_snapshots_and_vms()
     to_backup = get_volumes_to_backup(potential_machines_to_backup, all_backups)
-
-    return to_backup
+    machines_to_snapshot = apply_retention_policy()
+    volumes_to_snapshot = [machine['VolumeId'] for machine in machines_to_snapshot]
+    return volumes_to_snapshot
 
 def find_all_machines_with_backup_set_to_true():
     vms = parse_vms(fetch_instances())
@@ -124,7 +113,7 @@ def find_all_machines_with_backup_set_to_true():
     return vms_of_interest
 
 def get_volumes_to_backup(potential_machines_to_backup, all_backups):
-    # First finds all backup per machine
+    # First finds all backups per machine
     # Then gets last and adds it to machine id
     # TODO: check if the machine which has backup enabled but has no backup yet is being covered
     potential_machines = [machine['InstanceId'] for machine in potential_machines_to_backup]
@@ -146,6 +135,4 @@ def get_volumes_to_backup(potential_machines_to_backup, all_backups):
     machine_dates = [machine for machine in machine_dates if machine['Prelim_Backup_Check'] == True]
     return machine_dates
 
-# BACKUP 2
-create_backup()
-print('stop')
+# Logic for 3
