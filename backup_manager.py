@@ -175,6 +175,10 @@ def get_volumes_to_backup(potential_machines_to_backup, all_backups):
 
 
 def apply_cleaning_policy():
+    pass
+
+
+def make_distinction():
     all_backups = melt_snapshots_and_vms()
     all_backups_filtered = [
         snapshot for snapshot in all_backups if snapshot["Snapshot_date"] != "Never"
@@ -183,24 +187,32 @@ def apply_cleaning_policy():
     backups_older_than_7_days = [
         snapshot
         for snapshot in all_backups_filtered
-        if (
-            is_more_than_one_week(snapshot["Snapshot_date"])
-        )
+        if (is_more_than_one_week(snapshot["Snapshot_date"]))
     ]
     backups_younger_than_7_days = [
         snapshot
         for snapshot in all_backups_filtered
-        if (
-            is_less_than_one_week(snapshot["Snapshot_date"])
-        )
+        if (is_less_than_one_week(snapshot["Snapshot_date"]))
     ]
 
-    print("pause")
+    return [backups_older_than_7_days, backups_younger_than_7_days]
 
 
 # For all backups older than 7 days; keep only the most recent one.
 
+
+def parse_backups_older_than_7_days():
+    backups = make_distinction()
+    pass
+
+
 # For backups within the last 7 days, per day, keep the most recent one.
+
+
+def backups_younger_than_7_days():
+    backups = make_distinction()
+    pass
+
 
 # delete snapshots
 
