@@ -27,13 +27,13 @@ def is_both_within_week(prev: datetime, next: datetime):
 def how_long_ago(date: datetime) -> str:
     return (datetime.utcnow().replace(tzinfo=tzlocal()) - date)
 
-def more_than_1_day(date):
+def before_today(date):
     delta = date.today() - date.replace(tzinfo=None)
     now = datetime.now()
     seconds_since_midnight = (now - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
     check = float(delta.seconds) - seconds_since_midnight
     # true means seconds since snapshot is longer than when today started. Consequence: last snapshot must've been before today.
-    # false means senconds since snapshot is less than when today started. Consequence: last snapshot must've been today.
+    # false means seconds since snapshot is less than when today started. Consequence: last snapshot must've been today.
     if check>0:
         return True
     else:

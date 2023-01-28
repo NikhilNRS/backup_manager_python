@@ -101,12 +101,14 @@ def parse_vms(instances):
 
 # Logic for 2
 def create_backup():
-    machines_to_backup = find_all_machines_with_backup_set_to_true()
-    machine_info = melt_snapshots_and_vms()
-    first_machine = machine_info[0]['Snapshot_date']
-    c = more_than_1_day(first_machine)
-    print(c)
+    potential_machines_to_backup = find_all_machines_with_backup_set_to_true()
+    all_backups = melt_snapshots_and_vms()
+    to_backup = find_all_backup_per_machine(potential_machines_to_backup, all_backups)
     print('stop')
+    # first_machine = machine_info[0]['Snapshot_date']
+    # c = before_today(first_machine)
+    # print(c)
+    # print('stop')
 
 def find_all_machines_with_backup_set_to_true():
     vms = parse_vms(fetch_instances())
@@ -117,9 +119,21 @@ def find_all_machines_with_backup_set_to_true():
             'VolumeId':parsed_vm['VolumeID']})
     return vms_of_interest
 
-def find_all_backup_per_machine():
-    pass
+def find_all_backup_per_machine(potential_machines_to_backup, all_backups):
+    potential_machines = [machine['InstanceId'] for machine in potential_machines_to_backup]
+    backups_per_machine = [machine for machine in all_backups if machine['InstanceId'] in potential_machines]
+    # TODO: filter on each machine or create logic
 
+    for machine_id in potential_machines:
+        backup_dates_per_machine = []
+        for backup in backups_per_machine:
+            if backup['InstanceId'] == machine_id:
+                backup_dates_per_machine.append(backup['Snapshot_date'])
+        machine_dates_holder = {
+            "InstanceId": machine_id,
+            "Backup_Dates": backup_dates_per_machine
+        }
+    print(machine_dates_holder)
 
 
 # BACKUP 2
