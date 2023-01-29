@@ -32,11 +32,11 @@ def backups_older_than_7_days():
     backups = make_distinction()
     _backups = backups[0]
     new_backups = []
-    if len(_backups)>0:
+    if len(_backups) > 0:
 
         # find out how old a certain backup is.
         for backup in _backups:
-            backup["weeks"] = trunc(how_long_ago(backup["Snapshot_date"]).days/7)
+            backup["weeks"] = trunc(how_long_ago(backup["Snapshot_date"]).days / 7)
             new_backups.append(backup)
 
         # new_backups = [backup for backup in new_backups if backup["weeks"]>0]
@@ -124,7 +124,7 @@ def backups_younger_than_7_days():
     _backups = backups[1]
     new_backups = []
 
-    if len(_backups)>0:
+    if len(_backups) > 0:
 
         # find out how old a certain backup is.
         for backup in _backups:
@@ -146,7 +146,9 @@ def backups_younger_than_7_days():
                 backups_of_the_day = [
                     backup for backup in new_backups if backup["days"] == day
                 ]
-                machines_of_today = set([backup["InstanceId"] for backup in new_backups])
+                machines_of_today = set(
+                    [backup["InstanceId"] for backup in new_backups]
+                )
                 snapshots_to_keep["{day}".format(day=day)] = helper_function(
                     machines_of_today, backups_of_the_day
                 )
@@ -160,7 +162,7 @@ def snapshots_to_delete_young(snapshots_to_keep):
     all_backups = melt_snapshots_and_vms()
     all_snapshot_ids = [backup["Snapshot_Id"] for backup in all_backups]
 
-    if len(snapshots_to_keep)>0:
+    if len(snapshots_to_keep) > 0:
 
         # Add none for convenience to ignore vm which have no snaps
         keep_snap_list = ["None"]
@@ -169,17 +171,20 @@ def snapshots_to_delete_young(snapshots_to_keep):
                 for machine in j:
                     for instance, snapshot in machine.items():
                         keep_snap_list.append(snapshot)
-        snaps_to_delete = [snap for snap in all_snapshot_ids if snap not in keep_snap_list]
+        snaps_to_delete = [
+            snap for snap in all_snapshot_ids if snap not in keep_snap_list
+        ]
 
         return snaps_to_delete
     else:
         return None
 
+
 def snapshots_to_delete_old(snapshots_to_keep):
     all_backups = melt_snapshots_and_vms()
     all_snapshot_ids = [backup["Snapshot_Id"] for backup in all_backups]
 
-    if len(snapshots_to_keep)>0:
+    if len(snapshots_to_keep) > 0:
 
         # Add none for convenience to ignore vm which have no snaps
         keep_snap_list = ["None"]
@@ -188,7 +193,9 @@ def snapshots_to_delete_old(snapshots_to_keep):
                 for machine in j:
                     for instance, snapshot in machine.items():
                         keep_snap_list.append(snapshot)
-        snaps_to_delete = [snap for snap in all_snapshot_ids if snap not in keep_snap_list]
+        snaps_to_delete = [
+            snap for snap in all_snapshot_ids if snap not in keep_snap_list
+        ]
 
         return snaps_to_delete
     else:
