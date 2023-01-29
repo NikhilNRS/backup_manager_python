@@ -4,7 +4,8 @@ import sys
 
 from aws_utils import create_snapshot, delete_snapshot
 from cleaning_policy import (backups_older_than_7_days,
-                             backups_younger_than_7_days, snapshots_to_delete)
+                             backups_younger_than_7_days, snapshots_to_delete_young,
+                             snapshots_to_delete_old)
 from cli import cli_parser
 from list_backup_utils import melt_snapshots_and_vms
 from retainment_policy import (find_all_machines_with_backup_set_to_true,
@@ -35,8 +36,8 @@ class BackupManager:
 
     def apply_cleaning_policy(self):
         all_snaps_to_remove = []
-        removal_7_days = snapshots_to_delete(backups_younger_than_7_days())
-        removal_weeks = snapshots_to_delete(backups_older_than_7_days())
+        removal_7_days = snapshots_to_delete_young(backups_younger_than_7_days())
+        removal_weeks = snapshots_to_delete_old(backups_older_than_7_days())
         all_snaps_to_remove.append(removal_7_days)
         all_snaps_to_remove.append(removal_weeks)
         final_cleaning_list = [
