@@ -47,15 +47,19 @@ def backups_older_than_7_days():
     # make distinction to this function and delete everything
     # which didn't make our keep list.
 
-    unique_weeks = set([backup["weeks"] for backup in new_backups if backup["weeks"] != 0])
+    unique_weeks = set(
+        [backup["weeks"] for backup in new_backups if backup["weeks"] != 0]
+    )
     snapshots_to_keep = {}
-    if len(snapshots_to_keep)>0:
+    if len(snapshots_to_keep) > 0:
 
         for week in unique_weeks:
             backups_of_the_day = [
                 backup for backup in new_backups if backup["weeks"] == week
             ]
-            machines_of_this_week = set([backup["InstanceId"] for backup in new_backups])
+            machines_of_this_week = set(
+                [backup["InstanceId"] for backup in new_backups]
+            )
 
         snapshots_to_keep["{week}".format(week=week)] = _helper_function(
             machines_of_this_week, backups_of_the_day
@@ -129,10 +133,12 @@ def backups_younger_than_7_days():
 
     unique_days = set([backup["days"] for backup in new_backups])
     snapshots_to_keep = {}
-    if len(unique_days)>0:
+    if len(unique_days) > 0:
 
         for day in unique_days:
-            backups_of_the_day = [backup for backup in new_backups if backup["days"] == day]
+            backups_of_the_day = [
+                backup for backup in new_backups if backup["days"] == day
+            ]
             machines_of_today = set([backup["InstanceId"] for backup in new_backups])
             snapshots_to_keep["{day}".format(day=day)] = helper_function(
                 machines_of_today, backups_of_the_day
