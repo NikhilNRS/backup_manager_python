@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
+
 import pytz
 from dateutil.tz import tzlocal
+
 
 # date utils
 def is_more_than_one_week(date: datetime) -> bool:

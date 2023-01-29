@@ -1,18 +1,14 @@
-from list_backup_utils import melt_snapshots_and_vms
-from cleaning_policy import (
-    backups_older_than_7_days,
-    backups_younger_than_7_days,
-    snapshots_to_delete,
-)
-from aws_utils import delete_snapshot, create_snapshot
-from retainment_policy import (
-    get_volumes_to_backup,
-    find_all_machines_with_backup_set_to_true,
-)
-from cli import cli_parser
 import asyncio
 import logging
 import sys
+
+from aws_utils import create_snapshot, delete_snapshot
+from cleaning_policy import (backups_older_than_7_days,
+                             backups_younger_than_7_days, snapshots_to_delete)
+from cli import cli_parser
+from list_backup_utils import melt_snapshots_and_vms
+from retainment_policy import (find_all_machines_with_backup_set_to_true,
+                               get_volumes_to_backup)
 
 
 class BackupManager:

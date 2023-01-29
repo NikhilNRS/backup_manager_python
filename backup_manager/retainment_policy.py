@@ -1,5 +1,5 @@
 from date_utils import before_today
-from list_backup_utils import parse_vms, fetch_instances
+from list_backup_utils import fetch_instances, parse_vms
 
 
 def find_all_machines_with_backup_set_to_true():

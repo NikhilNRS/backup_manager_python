@@ -1,5 +1,7 @@
 from math import trunc
-from date_utils import is_more_than_one_week, is_less_than_one_week, how_long_ago
+
+from date_utils import (how_long_ago, is_less_than_one_week,
+                        is_more_than_one_week)
 from list_backup_utils import melt_snapshots_and_vms
 
 
