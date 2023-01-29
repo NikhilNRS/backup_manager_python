@@ -10,11 +10,9 @@ def fetch_instances():
         for instance in group["Instances"]
     ]
 
-
 # create snapshot
 def create_snapshot(volume):
     ec2_client.create_snapshot(VolumeId=volume)
-
 
 # delete a snapshot
 def delete_snapshot(snapshot):

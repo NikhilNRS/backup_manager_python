@@ -53,3 +53,12 @@ class BackupManager:
     def clean_backups(self, snapshotids: list = None):
         for snapshotid in snapshotids:
             delete_snapshot(snapshotid)
+
+bm_instance = BackupManager()
+bm_instance._set_bm_attribs_()
+
+# Answer 2
+bm_instance.create_backup(volumes_to_snapshot=bm_instance.apply_retention_policy())
+
+# Answer 3
+bm_instance.clean_backups(snapshotids=bm_instance.apply_cleaning_policy())
