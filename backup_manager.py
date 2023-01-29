@@ -117,8 +117,9 @@ def create_backup(volumes_to_snapshot):
 def apply_retention_policy():
     potential_machines_to_backup = find_all_machines_with_backup_set_to_true()
     all_backups = melt_snapshots_and_vms()
-    to_backup = get_volumes_to_backup(potential_machines_to_backup, all_backups)
-    machines_to_snapshot = apply_retention_policy()
+    machines_to_snapshot = get_volumes_to_backup(
+        potential_machines_to_backup, all_backups
+    )
     volumes_to_snapshot = [machine["VolumeId"] for machine in machines_to_snapshot]
     return volumes_to_snapshot
 
@@ -219,10 +220,10 @@ def backups_older_than_7_days():
 
     # new_backups = [backup for backup in new_backups if backup["weeks"]>0]
 
-    # create nested dict, where first we look at every unique day
-    # followed by machines that have a backup on that day
-    # and note the most recent back up per date to find a list of backups
-    # to keep. Consequently after we take the backup passed from
+    # create nested dict, where first we look at every unique week
+    # followed by machines that have a backup in that week
+    # and note the most recent back up per week to find a list of backups
+    # to keep. Consequently we take the backup passed from
     # make distinction to this function and delete everything
     # which didn't make our keep list.
 
@@ -338,12 +339,12 @@ def clean_backups(snapshotids: list = None):
 
 # Answer 1
 
-# output_1 = melt_snapshots_and_vms
+output_1 = melt_snapshots_and_vms()
 
 # Answer 2
 
-create_backup(volumes_to_snapshot=get_volumes_to_backup())
+create_backup(volumes_to_snapshot=apply_retention_policy())
 
 # Answer 3
 
-# clean_backups(snapshotids = apply_cleaning_policy())
+clean_backups(snapshotids=apply_cleaning_policy())
