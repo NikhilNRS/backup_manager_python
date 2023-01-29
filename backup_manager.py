@@ -1,6 +1,7 @@
 from math import trunc
 from date_utils import *
 from aws_utils import *
+
 # TODO: add asyncio
 
 
@@ -318,7 +319,7 @@ output_1 = melt_snapshots_and_vms()
 # Answer 2
 
 create_backup(volumes_to_snapshot=apply_retention_policy())
-print('pause')
+print("pause")
 # Answer 3
 
 clean_backups(snapshotids=apply_cleaning_policy())
