@@ -81,7 +81,7 @@ class BackupManager:
         snapshotids = self.apply_cleaning_policy()
         self.log.info('Found {} snapshots which need to be deleted.'.format(len(snapshotids)))
         if len(snapshotids)>0:
-            self.log.info('Found the following list of snapshot Ids to be removed: {}'.format(snapshotids))
+            self.log.info('Found the following list of snapshot Ids to be removed: {}'.format(len(snapshotids)))
             self._set_bm_attribs_()
             number_of_backups = len(self.list_basic_info)
             for snapshotid in snapshotids:
@@ -131,7 +131,7 @@ def main(sys_args):
         # Case Backup-3: Remove old backups following retention policy
 
         elif args.option == "clean":
-            asyncio.run(bm_instance.bm_instance.clean_backups())
+            asyncio.run(bm_instance.clean_backups())
 
         else:
             raise Exception(
