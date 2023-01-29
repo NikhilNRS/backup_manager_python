@@ -53,20 +53,24 @@ class BackupManager:
         self.log.info('Starting backup process')
 
         volumes_to_snapshot = self.apply_retention_policy()
-        for volume in volumes_to_snapshot:
-            self._set_bm_attribs_()
-            number_of_backups = len(self.list_basic_info)
+        self.log.info('Found {} instances which need to be backed up.'.format(len(volumes_to_snapshot)))
+        if len(volumes_to_snapshot)>0:
             self.log.info('Starting asynchronous backup creation')
-            create_snapshot(volume)
-            await asyncio.sleep(0.1)
-            while True:
-                await asyncio.create_task(self._set_bm_attribs_())
-                if number_of_backups < len(len(self.list_basic_info)):
-                    break
-            await asyncio.sleep(5)
+            for volume in volumes_to_snapshot:
+                self._set_bm_attribs_()
+                number_of_backups = len(self.list_basic_info)
+                create_snapshot(volume)
+                self.log.info('Creating snapshot for volume with id: {}.'.format(volume))
+                await asyncio.sleep(0.1)
+                while True:
+                    self.log.info('Waiting for snapshot of volume with id ({}) to finish.'.format(volume))
+                    await asyncio.create_task(self._set_bm_attribs_())
+                    if number_of_backups < len(len(self.list_basic_info)):
+                        break
+                    await asyncio.sleep(5)
         
-    
-        self.log.info('All snapshots done')
+        if len(volumes_to_snapshot)>0:
+            self.log.info('All snapshots done')
         
         # Close the handlers of the logger at the end of the execution
         self.cleanup_log_handler()
@@ -75,18 +79,23 @@ class BackupManager:
         self.log = self.create_logger('retention_policy')
         self.log.info('Checking backups against retention policy')
         snapshotids = self.apply_cleaning_policy()
-        self._set_bm_attribs_()
-        number_of_backups = len(self.list_basic_info)
-        for snapshotid in snapshotids:
-            delete_snapshot(snapshotid)
-            await asyncio.sleep(0.1)
-            while True:
-                await asyncio.create_task(self._set_bm_attribs_())
-                if number_of_backups > len(len(self.list_basic_info)):
-                    break
-            await asyncio.sleep(5)
-        # Close the handles of the logger at the end of the execution
-        self.cleanup_log_handler()
+        self.log.info('Found {} snapshots which need to be deleted.'.format(len(snapshotids)))
+        if len(snapshotids)>0:
+            self.log.info('Found the following list of snapshot Ids to be removed: {}'.format(snapshotids))
+            self._set_bm_attribs_()
+            number_of_backups = len(self.list_basic_info)
+            for snapshotid in snapshotids:
+                delete_snapshot(snapshotid)
+                self.log.info('Deleting snapshot with Id: {}'.format(snapshotid))
+                await asyncio.sleep(0.1)
+                while True:
+                    self.log.info('Waiting for snapshot with id ({}) to finish deletion.'.format(snapshotid))
+                    await asyncio.create_task(self._set_bm_attribs_())
+                    if number_of_backups > len(len(self.list_basic_info)):
+                        break
+                    await asyncio.sleep(5)
+            # Close the handles of the logger at the end of the execution
+            self.cleanup_log_handler()
     
     def create_logger(self, name):
         logging.basicConfig(
