@@ -48,10 +48,15 @@ class BackupManager:
         return len(self.list_basic_info)
 
     async def create_backup(self):
+        # Set up a logger to log the information
+        self.log = self.create_logger('snapshot')
+        self.log.info('Starting backup process')
+
         volumes_to_snapshot = self.apply_retention_policy()
         for volume in volumes_to_snapshot:
             self._set_bm_attribs_()
             number_of_backups = len(self.list_basic_info)
+            self.log.info('Starting asynchronous backup creation')
             create_snapshot(volume)
             await asyncio.sleep(0.1)
             while True:
@@ -59,8 +64,16 @@ class BackupManager:
                 if number_of_backups < len(len(self.list_basic_info)):
                     break
             await asyncio.sleep(5)
+        
+    
+        self.log.info('All snapshots done')
+        
+        # Close the handlers of the logger at the end of the execution
+        self.cleanup_log_handler()
 
     async def clean_backups(self):
+        self.log = self.create_logger('retention_policy')
+        self.log.info('Checking backups against retention policy')
         snapshotids = self.apply_cleaning_policy()
         self._set_bm_attribs_()
         number_of_backups = len(self.list_basic_info)
@@ -72,6 +85,22 @@ class BackupManager:
                 if number_of_backups > len(len(self.list_basic_info)):
                     break
             await asyncio.sleep(5)
+        # Close the handles of the logger at the end of the execution
+        self.cleanup_log_handler()
+    
+    def create_logger(self, name):
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s  %(levelname)s   %(message)s',
+            handlers=[logging.StreamHandler(sys.stdout)]
+        )
+        return logging.getLogger(name)
+
+    # Close the logging handlers
+    def cleanup_log_handler(self):
+        for handler in self.log.handlers:
+            handler.close()
+            self.log.removeFilter(handler)
 
 
 def main(sys_args):
