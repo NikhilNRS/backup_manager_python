@@ -142,7 +142,7 @@ def snapshots_to_delete(snapshots_to_keep):
     # Add none for convenience to ignore vm which have no snaps
     keep_snap_list = ["None"]
     for i, j in snapshots_to_keep.items():
-        if j != "None":
+        if j != None:
             for machine in j:
                 for instance, snapshot in machine.items():
                     keep_snap_list.append(snapshot)
