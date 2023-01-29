@@ -1,39 +1,13 @@
-import boto3
 from math import trunc
 from date_utils import *
-
-# Logic for 1
-ec2_client = boto3.client("ec2")
-
-
-def fetch_instances():
-    return [
-        instance
-        for group in ec2_client.describe_instances()["Reservations"]
-        for instance in group["Instances"]
-    ]
-
-
-# create snapshot
-def create_snapshot(volume):
-    ec2_client.create_snapshot(VolumeId=volume)
-
-
-# delete a snapshot
-def delete_snapshot(snapshot):
-    ec2_client.delete_snapshot(SnapshotId=snapshot)
+from aws_utils import *
+# TODO: add asyncio
 
 
 def fetch_volumes():
     vms = parse_vms(fetch_instances())
     volumes = [vm["VolumeID"] for vm in vms]
     return volumes
-
-
-def fetch_snapshots_per_volume(volume_id):
-    return ec2_client.describe_snapshots(
-        Filters=[{"Name": "volume-id", "Values": volume_id}]
-    )
 
 
 def parse_snapshots():
@@ -344,7 +318,7 @@ output_1 = melt_snapshots_and_vms()
 # Answer 2
 
 create_backup(volumes_to_snapshot=apply_retention_policy())
-
+print('pause')
 # Answer 3
 
 clean_backups(snapshotids=apply_cleaning_policy())
