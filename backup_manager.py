@@ -183,6 +183,7 @@ def apply_cleaning_policy():
     final_cleaning_list = [item for sublist in all_snaps_to_remove for item in sublist]
     return final_cleaning_list
 
+
 def make_distinction():
     all_backups = melt_snapshots_and_vms()
     all_backups_filtered = [
@@ -210,13 +211,12 @@ def backups_older_than_7_days():
     backups = make_distinction()
     _backups = backups[1]
     new_backups = []
-    
-    
+
     # find out how old a certain backup is.
     for backup in _backups:
-        backup["weeks"] = trunc(how_long_ago(backup["Snapshot_date"]).days/7)
+        backup["weeks"] = trunc(how_long_ago(backup["Snapshot_date"]).days / 7)
         new_backups.append(backup)
-    
+
     # new_backups = [backup for backup in new_backups if backup["weeks"]>0]
 
     # create nested dict, where first we look at every unique day
@@ -229,14 +229,17 @@ def backups_older_than_7_days():
     unique_weeks = set([backup["weeks"] for backup in new_backups])
     snapshots_to_keep = {}
     for week in unique_weeks:
-        backups_of_the_day = [backup for backup in new_backups if backup["weeks"] == week]
+        backups_of_the_day = [
+            backup for backup in new_backups if backup["weeks"] == week
+        ]
         machines_of_this_week = set([backup["InstanceId"] for backup in new_backups])
-    
+
     snapshots_to_keep["{week}".format(week=week)] = _helper_function(
-            machines_of_this_week, backups_of_the_day
-        )
+        machines_of_this_week, backups_of_the_day
+    )
 
     return snapshots_to_keep
+
 
 # For backups older than a week, per week, keep the most recent one.
 def _helper_function(machines_of_this_week, backups_of_the_week):
@@ -259,6 +262,7 @@ def _helper_function(machines_of_this_week, backups_of_the_week):
         m["{machine}".format(machine=machine)] = backup_to_keep[0]
         some_list.append(m)
 
+
 def helper_function(machines_of_today, backups_of_the_day):
     some_list = []
     for machine in machines_of_today:
@@ -278,7 +282,6 @@ def helper_function(machines_of_today, backups_of_the_day):
         ]
         m["{machine}".format(machine=machine)] = backup_to_keep[0]
         some_list.append(m)
-
 
     # returns a list which contains dicts in the form of [{machine: [backup_to_keep_of_the_day_for_that_machine]}]
     return some_list
@@ -312,12 +315,13 @@ def backups_younger_than_7_days():
 
     return snapshots_to_keep
 
+
 def snapshots_to_delete(snapshots_to_keep):
     all_backups = melt_snapshots_and_vms()
-    all_snapshot_ids = [backup['Snapshot_Id'] for backup in all_backups]
+    all_snapshot_ids = [backup["Snapshot_Id"] for backup in all_backups]
 
     # Add none for convenience to ignore vm which have no snaps
-    keep_snap_list = ['None']
+    keep_snap_list = ["None"]
     for i, j in snapshots_to_keep.items():
         for machine in j:
             for instance, snapshot in machine.items():
@@ -325,6 +329,7 @@ def snapshots_to_delete(snapshots_to_keep):
     snaps_to_delete = [snap for snap in all_snapshot_ids if snap not in keep_snap_list]
 
     return snaps_to_delete
+
 
 def clean_backups(snapshotids: list = None):
     for snapshotid in snapshotids:
@@ -337,7 +342,7 @@ def clean_backups(snapshotids: list = None):
 
 # Answer 2
 
-create_backup(volumes_to_snapshot = get_volumes_to_backup())
+create_backup(volumes_to_snapshot=get_volumes_to_backup())
 
 # Answer 3
 
