@@ -39,8 +39,10 @@ class BackupManager:
         all_snaps_to_remove = []
         removal_7_days = snapshots_to_delete_young(backups_younger_than_7_days())
         removal_weeks = snapshots_to_delete_old(backups_older_than_7_days())
-        all_snaps_to_remove.append(removal_7_days)
-        all_snaps_to_remove.append(removal_weeks)
+        if removal_7_days != None:
+            all_snaps_to_remove.append(removal_7_days)
+        if removal_weeks != None:
+            all_snaps_to_remove.append(removal_weeks)
         final_cleaning_list = [
             item for sublist in all_snaps_to_remove for item in sublist
         ]
@@ -97,7 +99,7 @@ class BackupManager:
         if len(snapshotids) > 0:
             self.log.info(
                 "Found the following list of snapshot Ids to be removed: {}".format(
-                    len(snapshotids)
+                    (snapshotids)
                 )
             )
             self._set_bm_attribs_()
