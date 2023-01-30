@@ -1,8 +1,8 @@
 import unittest
 from unittest import mock
 
-from backup_manager import aws_utils
-
+import sys
+sys.path.append('../backup_manager')
 
 def test_create_snapshot():
     pass

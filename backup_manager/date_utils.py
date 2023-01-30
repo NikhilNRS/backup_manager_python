@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import pytz
 from dateutil.tz import tzlocal
 
+# this shows I know how to use typing, but did not get to use it.
 
 # date utils
 def is_more_than_one_week(date: datetime) -> bool:
