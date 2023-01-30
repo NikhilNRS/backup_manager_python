@@ -12,13 +12,11 @@ def fetch_instances():
 
 
 # create snapshot
-# TODO: add async stuff here
 def create_snapshot(volume):
     ec2_client.create_snapshot(VolumeId=volume)
 
 
 # delete a snapshot
-# TODO: add async stuff here
 def delete_snapshot(snapshot):
     ec2_client.delete_snapshot(SnapshotId=snapshot)
 
