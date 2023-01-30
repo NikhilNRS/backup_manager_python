@@ -181,7 +181,12 @@ def snapshots_to_delete_young(snapshots_to_keep):
 
             return snaps_to_delete
     else:
-        return None
+        if len(relevant_backups)>0:
+            all_snapshot_ids = [backup["Snapshot_Id"] for backup in relevant_backups]
+            return all_snapshot_ids
+        else:
+            return None
+
 
 
 def snapshots_to_delete_old(snapshots_to_keep):
@@ -206,4 +211,9 @@ def snapshots_to_delete_old(snapshots_to_keep):
 
             return snaps_to_delete
     else:
-        return None
+
+        if len(relevant_backups)>0:
+            all_snapshot_ids = [backup["Snapshot_Id"] for backup in relevant_backups]
+            return all_snapshot_ids
+        else:
+            return None
